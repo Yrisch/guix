@@ -512,7 +512,7 @@ arrays) that expose a buffer interface.")
              ;; Default to "ch4", as will be the case in 3.4.  It also works
              ;; around issues when running test suites of packages that use
              ;; MPICH: <https://issues.guix.gnu.org/39588#15>.
-             "--with-device=ch3:sock" ; --with-device=ch4:ofi segfaults in tests
+             "--with-device=ch3:nemesis" ; --with-device=ch4:ofi segfaults in tests
 
              (string-append "--with-hwloc-prefix="
                             (assoc-ref %build-inputs "hwloc"))
