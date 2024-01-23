@@ -446,31 +446,12 @@ arrays) that expose a buffer interface.")
 (define-public python-mpi4py-mpich
   (package
     (name "python-mpi4py-mpich")
-    (version "3.1.4")
+    (version "3.1.2")
     (source
      (origin
        (method url-fetch)
-       (uri (pypi-uri "mpi4py" version))
-       (sha256
-        (base32 "101lz7bnm9l17nrkbg6497kxscyh53aah7qd2b820ck2php8z18p"))))
+       (uri (pypi-uri "mpi4py-mpich" version))))
     (build-system python-build-system)
-    (arguments
-     `(#:phases
-       (modify-phases %standard-phases
-         (add-after 'build 'mpi-setup
-           ,%openmpi-setup)
-         (add-before 'check 'pre-check
-           (lambda _
-             ;; Skip BaseTestSpawn class (causes error 'ompi_dpm_dyn_init()
-             ;; failed --> Returned "Unreachable"' in chroot environment).
-             (substitute* "test/test_spawn.py"
-               (("unittest.skipMPI\\('openmpi\\(<3.0.0\\)'\\)")
-                "unittest.skipMPI('openmpi')"))
-             #t)))))
-    (inputs
-     (list mpich))
-    (properties
-     '((updater-extra-inputs . ("mpich"))))
     (home-page "https://github.com/mpi4py/mpi4py")
     (synopsis "Python bindings for the Message Passing Interface standard")
     (description "MPI for Python (mpi4py) provides bindings of the Message
