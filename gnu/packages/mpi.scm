@@ -459,10 +459,7 @@ arrays) that expose a buffer interface.")
      `(,zlib
        (,hwloc-2 "lib")
        ,slurm
-       ,@(if (and (not (%current-target-system))
-                  (member (%current-system) (package-supported-systems ucx)))
-             (list ucx)
-             '())))
+       ))
     (native-inputs
      (list perl which gfortran))
     (outputs '("out" "debug"))
@@ -474,15 +471,11 @@ arrays) that expose a buffer interface.")
              ;; Default to "ch4", as will be the case in 3.4.  It also works
              ;; around issues when running test suites of packages that use
              ;; MPICH: <https://issues.guix.gnu.org/39588#15>.
-             "--with-device=ch4:ucx" ; --with-device=ch4:ofi segfaults in tests
+             "--with-device=ch3" ; --with-device=ch4:ofi segfaults in tests
 
              (string-append "--with-hwloc-prefix="
                             (assoc-ref %build-inputs "hwloc"))
-
-             ,@(if (assoc "ucx" (package-inputs this-package))
-                   `((string-append "--with-ucx="
-                                    (assoc-ref %build-inputs "ucx")))
-                   '()))
+                            )
 
        #:phases (modify-phases %standard-phases
                   (add-after 'unpack 'patch-sources
