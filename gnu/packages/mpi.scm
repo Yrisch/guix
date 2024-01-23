@@ -443,6 +443,47 @@ object as well as optimized communications of Python objects (such as NumPy
 arrays) that expose a buffer interface.")
     (license license:bsd-3)))
 
+(define-public python-mpi4py-mpich
+  (package
+    (name "python-mpi4py-mpich")
+    (version "3.1.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mpi4py" version))
+       (sha256
+        (base32 "101lz7bnm9l17nrkbg6497kxscyh53aah7qd2b820ck2php8z18p"))))
+    (build-system python-build-system)
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-after 'build 'mpi-setup
+           ,%openmpi-setup)
+         (add-before 'check 'pre-check
+           (lambda _
+             ;; Skip BaseTestSpawn class (causes error 'ompi_dpm_dyn_init()
+             ;; failed --> Returned "Unreachable"' in chroot environment).
+             (substitute* "test/test_spawn.py"
+               (("unittest.skipMPI\\('openmpi\\(<3.0.0\\)'\\)")
+                "unittest.skipMPI('openmpi')"))
+             #t)))))
+    (inputs
+     (list mpich))
+    (properties
+     '((updater-extra-inputs . ("mpich"))))
+    (home-page "https://github.com/mpi4py/mpi4py")
+    (synopsis "Python bindings for the Message Passing Interface standard")
+    (description "MPI for Python (mpi4py) provides bindings of the Message
+Passing Interface (MPI) standard for the Python programming language, allowing
+any Python program to exploit multiple processors.
+
+mpi4py is constructed on top of the MPI-1/MPI-2 specification and provides an
+object oriented interface which closely follows MPI-2 C++ bindings.  It
+supports point-to-point and collective communications of any picklable Python
+object as well as optimized communications of Python objects (such as NumPy
+arrays) that expose a buffer interface.")
+    (license license:bsd-3)))
+
 (define-public mpich
   (package
     (name "mpich")
@@ -471,7 +512,7 @@ arrays) that expose a buffer interface.")
              ;; Default to "ch4", as will be the case in 3.4.  It also works
              ;; around issues when running test suites of packages that use
              ;; MPICH: <https://issues.guix.gnu.org/39588#15>.
-             "--with-device=ch3" ; --with-device=ch4:ofi segfaults in tests
+             "--with-device=ch3:sock" ; --with-device=ch4:ofi segfaults in tests
 
              (string-append "--with-hwloc-prefix="
                             (assoc-ref %build-inputs "hwloc"))
